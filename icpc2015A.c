@@ -7,7 +7,7 @@
 /*
 | Author: James Chapman-Brown
 |
-| welcome to my solution to the intenation collegiate programming competition 2015, problem A
+| welcome to my solution to the intenational collegiate programming competition 2015, problem A
 |
 |	https://icpc.baylor.edu/worldfinals/problems/icpc2015.pdf
 |
