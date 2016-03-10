@@ -88,6 +88,9 @@ void addPoint( pointHolder * toAddTo, int time , coefficient_struct equation );
 // Find the min max points using brute force method on the derivitive
 pointHolder find_peaks( coefficient_struct equation , int n );
 
+// Find decline using only selected points
+double findDeclineFromPoints( pointHolder minMaxPoints );
+
 // Find the largest point using the derivitive method 
 double findLargestDecline( int n, coefficient_struct equation );
 
@@ -279,74 +282,66 @@ pointHolder find_peaks( coefficient_struct equation , int n )
 
 }
 
+double findDeclineFromPoints( pointHolder minMaxPoints )
+{
+	double loss = 0;	
+	int i = 0;
+	int j = 0;
+	double prevMax = 0;
+	double value = 0;
+
+	for ( i=0; i<minMaxPoints.numPoints ; i++ )
+	{
+		value = minMaxPoints.points[i].value;
+
+		// if this isn't the largest value
+		// this decilne must be smaller than buying at the earlier maximum value
+		// so we don't need to compute this.
+		if ( value > prevMax )
+		{
+			prevMax = value;
+			for ( j = i; j<minMaxPoints.numPoints;j++ )
+			{
+				if ( ( value - minMaxPoints.points[j].value ) > loss )
+				{
+					loss = value - minMaxPoints.points[j].value;
+				}
+			}
+		}
+	}
+
+	return loss; 
+}
+
+
 // Finds the largest price decline in the price of artichokes
 // This function uses the min/max method
 double findLargestDecline( int n, coefficient_struct equation )
 {
 	pointHolder zeros;
 
-	double profit = 0;	
-	int i = 0;
-	int j = 0;
 
+
+	// These are zeros of the derivitive, tehy will be the local maxima/minima of interest
 	zeros = find_peaks( equation , n );
 
-	double prevMax = 0;
+	return( findDeclineFromPoints( zeros ) );
 
-	double value = 0;
-	for ( i=0; i<zeros.numPoints ; i++ )
-	{
-		value = zeros.points[i].value;
-		// if this isn't the largest value
-		if ( value > prevMax )
-		{
-			prevMax = value;
-			for ( j = i; j<zeros.numPoints;j++ )
-			{
-				if ( ( value - zeros.points[j].value ) > profit )
-				{
-					profit = value - zeros.points[j].value;
-				}
-			}
-		}
-	}
 
-	return profit; 
 }
 
 // Find the largest decline in artichoke prices using a brute force 
 double bruteForceFindLargestDecline( int n, coefficient_struct equation )
 {
-
-
-	double profit = 0;
-	double value = 0;
-	double maxValue = 0;
-	int i,j = 0;
+	int i=0;
 
 	pointHolder thePoints = {0};
 
-	// precalculate the price of each point saving recomputing the complicated trig function
-	for ( i=1; i<(n+1); i++ )
+	// the solution space goes from 1 to n
+	for( i=1;i<n+1;i++ )
 	{
 		addPoint( &thePoints , i , equation );
 	}
 
-	for ( i=0; i<thePoints.numPoints; i++ )
-	{
-		value = thePoints.points[i].value;
-		if (value > maxValue)
-		{
-			maxValue = value;
-			for ( j=i; j<n; j++ )
-			{
-
-				if ( ( value -  thePoints.points[j].value ) > profit )
-				{
-					profit = value - thePoints.points[j].value;
-				}
-			}
-		}
-	}
-	return profit;
+	return ( findDeclineFromPoints( thePoints ) );
 }

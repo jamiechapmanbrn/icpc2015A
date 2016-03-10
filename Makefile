@@ -1,5 +1,5 @@
 LIBRARIES = -lm
-
+CC=clang
 
 .PHONY: test
 
